@@ -14,11 +14,10 @@ bool initialize_scale() {
     return true;
 }
 
-void tare_scale_by_value() {
+void tare_scale() {
     DEBUG_PRINTLN("Taring scale by value");
-    zero_tare_value();
     tare_value = get_avg_reading(10);
-    DEBUG_PRINTLN("Set new tare value");
+    DEBUG_PRINTF1("Set new tare value: %f", tare_value);
 }
 
 void reset_tare_value() {
@@ -28,7 +27,7 @@ void reset_tare_value() {
 
 void zero_tare_value() {
     DEBUG_PRINTLN("Zeroing tare value");
-    tare_value = 0.00;
+    tare_value = 0;
 }
 
 double get_avg_reading(long readings) {

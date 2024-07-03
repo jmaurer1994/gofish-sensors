@@ -17,14 +17,20 @@ AsyncWebServer server(WEBSERVER_PORT);
 // Scale
 ///////////////////////////
 void handleTareScaleRequest(AsyncWebServerRequest *request) {
-    tare_scale_by_value();
+    tare_scale();
     request->send(200);
 }
 
-void handleTareResetScaleRequest(AsyncWebServerRequest *request) {
+void handleTareResetRequest(AsyncWebServerRequest *request) {
     reset_tare_value();
     request->send(200);
 }
+
+void handleTareZeroRequest(AsyncWebServerRequest *request) {
+    zero_tare_value();
+    request->send(200);
+}
+
 //TODO: convert to a json
 void handleReadScaleRequest(AsyncWebServerRequest *request) {
     if (!request->hasParam("samples")) {
@@ -51,58 +57,25 @@ void handleReadScaleRequest(AsyncWebServerRequest *request) {
 
 ///////////////////////////
 // Force Sensor
-///////////////////////////
-void handleRetrieveCurrentEvents(AsyncWebServerRequest *request) {
-    std::vector<ForceEvent> current_events = get_current_events();
-
-    DynamicJsonDocument responseObject(WEBSERVER_MEMORYLIMIT);
-    JsonArray eventsArray = responseObject.createNestedArray("events");
-
-    for (ForceEvent event : current_events) {
-        JsonObject eventObject = eventsArray.createNestedObject();
-        eventObject["timestamp"] = event.get_timestamp();
-
-        for (float sample : event.get_samples()) {
-            eventObject["samples"].add(sample);
-        }
-    }
-
-    String response;
-
-    if (request->hasParam("pretty")) {
-        serializeJsonPretty(responseObject, response);
-    } else {
-        serializeJson(responseObject, response);
-    }
-
-    request->send(200, "application/json", response);
-    return;
-}
-
-void handleClearCurrentEvents(AsyncWebServerRequest *request) {
-    if (!request->hasParam("timestamp")) {
-        request->send(400);
-        return;
-    }
-
-    uint64_t timestamp = request->getParam("timestamp")->value().toInt();
-
-    if(timestamp == 0){
-        request->send(400);
-        return;
-    }
-
-    size_t count = clear_events_range(timestamp);
-
-    request->send(200, "text/plain", String(count));
-    return;
-}
-
+/////////////////////////// 
 void handleGetSensorReading(AsyncWebServerRequest *request){
-    float force = get_sensor_reading();
-    request->send(200, "text/plain", String(force, 5));
+    float reading = get_sensor_reading();
+    request->send(200, "text/plain", String(reading, 5));
     return;
 }
+
+void handleGetRawSensorReading(AsyncWebServerRequest *request){
+    int16_t raw_reading = get_raw_sensor_reading();
+    request->send(200, "text/plain", String(raw_reading));
+    return;
+}
+
+void handleGetCurrentComparatorThreshold(AsyncWebServerRequest *request){
+    int16_t threshold_value = get_current_comparator_threshold();
+    request->send(200, "text/plain", String(threshold_value));
+    return;
+}
+
 
 ///////////////////////////
 // Default
@@ -132,16 +105,17 @@ bool initialize_server() {
     server.on("/", HTTP_OPTIONS, handleHealthCheck);
     server.on("/time", HTTP_GET, handleTimeCheck);
 
-    server.on("/scale/tare/reset", HTTP_GET, handleTareResetScaleRequest);
+    server.on("/scale/tare/reset", HTTP_GET, handleTareResetRequest);
+    server.on("/scale/tare/zero", HTTP_GET, handleTareZeroRequest);
     server.on("/scale/tare", HTTP_GET, handleTareScaleRequest);
     server.on("/scale/read", HTTP_GET, handleReadScaleRequest);
 
-    server.on("/force/events/read_current", HTTP_GET,
-              handleRetrieveCurrentEvents);
-    server.on("/force/sensor/read", HTTP_GET,
+    server.on("/force_sensor/read", HTTP_GET,
               handleGetSensorReading);
-    server.on("/force/events/clear_current", HTTP_GET,
-              handleClearCurrentEvents);
+    server.on("/force_sensor/read_raw", HTTP_GET,
+              handleGetRawSensorReading);
+    server.on("/force_sensor/current_threshold", HTTP_GET,
+              handleGetCurrentComparatorThreshold);
 
     server.onNotFound(handleNotFound);
 

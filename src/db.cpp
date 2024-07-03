@@ -8,15 +8,14 @@ std::vector<ForceEvent> unsentEvents;
 static bool waitingAuthRequest;
 
 DynamicJsonDocument authResponseObject(512); // holds current JWT value
-DynamicJsonDocument insertResponseObject(
-    1024); // receives timestamp from inserted event for event cleanup
-DynamicJsonDocument
-    insertRequestObject(4096); // facilitates sending of event for insertion
-
+DynamicJsonDocument insertResponseObject(1024); // receives timestamp from inserted event for event cleanup
+DynamicJsonDocument insertRequestObject(4096); // facilitates sending of event for insertion
 DynamicJsonDocument authRequestObject(512);
+
 bool sendAuthenticationRequest();
 bool resend_queued_event();
 uint8_t confirm_event_entry(uint64_t timestamp);
+
 void auth_request_cb(void *optParm, AsyncHTTPRequest *request, int readyState) {
   (void)optParm;
   if (readyState != readyStateDone) {
@@ -61,6 +60,7 @@ void insert_request_cb(void *optParm, AsyncHTTPRequest *request,
     if (!confirm_event_entry(timestamp)) {
       DEBUG_PRINTF1("EVENT %llu NOT CONFIRMED", timestamp);
     }
+    insertResponseObject.clear();
     return;
   }
 
@@ -139,7 +139,7 @@ bool sendAuthenticationRequest() {
   serializeJson(authRequestObject, request);
 
   authRequest.send(request);
-
+  authRequestObject.clear();
   return true;
 }
 
@@ -180,7 +180,7 @@ bool sendSensorEventInsertRequest(ForceEvent event) {
 
   insertRequestObject["timestamp"] = event.get_timestamp();
 
-  for (float sample : event.get_samples()) {
+  for (int16_t sample : event.get_samples()) {
     insertRequestObject["samples"].add(sample);
   }
 
@@ -188,6 +188,8 @@ bool sendSensorEventInsertRequest(ForceEvent event) {
   serializeJson(insertRequestObject, request);
 
   insertRequest.send(request);
+
+  insertRequestObject.clear();
   sentEvents.push_back(event);
   return true;
 }

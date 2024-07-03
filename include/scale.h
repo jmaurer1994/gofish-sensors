@@ -6,7 +6,7 @@
 #include <HX711.h>
 
 bool initialize_scale();
-void tare_scale_by_value();
+void tare_scale();
 void reset_tare_value();
 void zero_tare_value();
 double get_avg_reading(long readings);

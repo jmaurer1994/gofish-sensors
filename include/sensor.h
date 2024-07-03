@@ -6,26 +6,21 @@
 
 class ForceEvent {
   uint64_t timestamp;
-  std::vector<float> samples;
+  std::vector<int16_t> samples;
 
 public:
-  void record_sample(float value);
+  void record_sample(int16_t value);
   void init_object();
   void reset_object();
   uint64_t get_timestamp() const;
-  std::vector<float> get_samples();
+  std::vector<int16_t> get_samples();
   uint16_t samples_collected();
-  float peak_force();
-  float average_force();
 };
 
 bool initialize_force_sensor();
 bool sample_force_sensor();
+int16_t get_raw_sensor_reading();
 float get_sensor_reading();
-size_t unsafe_clear_events();
-size_t clear_events_range(uint64_t timestamp);
-std::vector<ForceEvent> get_current_events();
-ForceEvent get_event(uint64_t timestamp);
-ForceEvent get_last_event();
-
+void set_comparator_thresholds();
+int16_t get_current_comparator_threshold();
 #endif

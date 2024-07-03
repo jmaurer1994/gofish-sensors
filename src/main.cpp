@@ -30,7 +30,13 @@ void setup() {
 }
 
 void loop() {
+    static uint32_t last_threshold_set_millis = millis();
+
     if (!sample_force_sensor()) {
         run_network_checks();
+        if(millis() - last_threshold_set_millis > COMPARATOR_THRESHOLD_SET_MINUTES * 60 * 1000UL){
+            set_comparator_thresholds();
+            last_threshold_set_millis = millis();
+        }
     }
 }
