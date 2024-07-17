@@ -10,16 +10,19 @@ WiFiUDP ntpUDP;
 // no offset because it offsets the epoch time value (per library doc)
 // https://github.com/arduino-libraries/NTPClient
 NTPClient timeClient(ntpUDP, NTP_SYNC_URL, 0, NTP_SYNC_INTERVAL_MILLIS);
-bool initialize_network() {
+bool initialize_network()
+{
     WiFi.mode(WIFI_STA);
 
-    if (!WiFi.config(ipaddr, gateway, subnet, dns1, dns2)) {
+    if (!WiFi.config(ipaddr, gateway, subnet, dns1, dns2))
+    {
         return false;
     }
 
     WiFi.begin(WLAN_SSID, WLAN_WPA2KEY);
     ArduinoOTA
-        .onStart([]() {
+        .onStart([]()
+                 {
             String type;
             if (ArduinoOTA.getCommand() == U_FLASH)
                 type = "sketch";
@@ -28,49 +31,59 @@ bool initialize_network() {
 
             // NOTE: if updating SPIFFS this would be the place to unmount
             // SPIFFS using SPIFFS.end()
-            DEBUG_PRINTLN("Start updating " + type);
-        })
-        .onEnd([]() { DEBUG_PRINTLN("\nEnd"); })
-        .onProgress([](unsigned int progress, unsigned int total) {
-            DEBUG_PRINTF1("Progress: %u%%\r", (progress / (total / 100)));
-        })
-        .onError([](ota_error_t error) {
+            DEBUG_PRINTLN("Start updating " + type); })
+        .onEnd([]()
+               { DEBUG_PRINTLN("\nEnd"); })
+        .onProgress([](unsigned int progress, unsigned int total)
+                    { DEBUG_PRINTF1("Progress: %u%%\r", (progress / (total / 100))); })
+        .onError([](ota_error_t error)
+                 {
             DEBUG_PRINTF1("Error[%u]: ", error);
-            if (error == OTA_AUTH_ERROR)
+            if (error == OTA_AUTH_ERROR){
                 DEBUG_PRINTLN("Auth Failed");
-            else if (error == OTA_BEGIN_ERROR)
+                }
+            else if (error == OTA_BEGIN_ERROR){
                 DEBUG_PRINTLN("Begin Failed");
-            else if (error == OTA_CONNECT_ERROR)
+                }
+            else if (error == OTA_CONNECT_ERROR){
                 DEBUG_PRINTLN("Connect Failed");
-            else if (error == OTA_RECEIVE_ERROR)
+                }
+            else if (error == OTA_RECEIVE_ERROR){
                 DEBUG_PRINTLN("Receive Failed");
-            else if (error == OTA_END_ERROR)
+                }
+            else if (error == OTA_END_ERROR){
                 DEBUG_PRINTLN("End Failed");
-        });
-
+                } 
+            });
+    ArduinoOTA.setTimeout(30 * 1000);
+    ArduinoOTA.setRebootOnSuccess(true);
     timeClient.begin();
     DEBUG_PRINTLN("Network initialized");
     return true;
 }
 
-void run_network_checks() {
+void run_network_checks()
+{
     static int64_t last_status_check_timestamp = -WLAN_CHECK_INTERVAL_MILLIS; // should run at start
     uint64_t current_millis = millis();
 
     if (current_millis - last_status_check_timestamp <
-        WLAN_CHECK_INTERVAL_MILLIS) {
+        WLAN_CHECK_INTERVAL_MILLIS)
+    {
         return; // not time to to check
     }
 
     last_status_check_timestamp = current_millis;
     // check wifi
-    if (WiFi.status() != WL_CONNECTED) {
+    if (WiFi.status() != WL_CONNECTED)
+    {
         DEBUG_PRINTF1("WiFi not connected(%d), attempting to connect to network: ",
                       WiFi.status());
         DEBUG_PRINTLN(WLAN_SSID);
         WiFi.disconnect();
         WiFi.reconnect();
-        if (WiFi.status() != WL_CONNECTED) {
+        if (WiFi.status() != WL_CONNECTED)
+        {
             return;
         }
     }
@@ -81,7 +94,7 @@ void run_network_checks() {
     // handle any OTA events
     ArduinoOTA.handle();
 
-    DEBUG_PRINTF2("Connected to network: %s\n%s\t", WLAN_SSID,
+    DEBUG_PRINTF2("Connected to network: %s @ %s", WLAN_SSID,
                   timeClient.getFormattedTime());
 
     IPAddress ip = WiFi.localIP();
@@ -90,6 +103,6 @@ void run_network_checks() {
     return;
 }
 
-uint64_t get_epoch_time(){ return timeClient.getEpochTime(); }
+uint64_t get_epoch_time() { return timeClient.getEpochTime(); }
 
 IPAddress get_ip() { return WiFi.localIP(); }
