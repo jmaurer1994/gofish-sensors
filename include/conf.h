@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#define LOADCELL_INIT_TARE_VALUE -6293.5
+#define LOADCELL_INIT_TARE_VALUE -5230 //Zeroed with empty feeder
 // calibration factor: read raw loadcell value with known weight attached
 // divide reading(g) by known weight mass(g)
 #define LOADCELL_CALIBRATION_FACTOR -109
