@@ -30,6 +30,14 @@ void zero_tare_value() {
     tare_value = 0;
 }
 
+void set_tare_value(double new_tare_value){
+    tare_value = new_tare_value;
+}
+
+double current_tare_value(){
+    return tare_value;
+}
+
 double get_avg_reading(long readings) {
     scale.power_up();
     delay(100); // not sure if necessary, sample code had a gap between power up

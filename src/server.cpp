@@ -55,6 +55,28 @@ void handleReadScaleRequest(AsyncWebServerRequest *request) {
     return;
 }
 
+void handleGetTareValueRequest(AsyncWebServerRequest *request) {
+    double tare_value = current_tare_value();
+    request->send(200, "text/plain", String(tare_value));
+    return;
+}
+
+void handleSetTareValueRequest(AsyncWebServerRequest *request) {
+    if (!request->hasParam("new_tare_value")) {
+        request->send(400); //no default value available
+        return;
+    }
+
+    AsyncWebParameter *newValueParam = request->getParam("new_tare_value");
+
+    double new_tare_value = newValueParam->value().toDouble();
+
+    set_tare_value(new_tare_value);
+
+    request->send(200);
+    return;
+}
+
 ///////////////////////////
 // Force Sensor
 /////////////////////////// 
