@@ -38,5 +38,9 @@ void loop() {
             set_comparator_thresholds();
             last_threshold_set_millis = millis();
         }
+
+        if(millis() > REBOOT_INTERVAL_HOURS * 60 * 60 * 1000UL){
+            ESP.restart();
+        }
     }
 }

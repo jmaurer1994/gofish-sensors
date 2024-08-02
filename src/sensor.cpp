@@ -68,7 +68,7 @@ float get_sensor_reading() {
 
 void set_comparator_thresholds() {
   int16_t current_reading = get_raw_sensor_reading();
-  int16_t new_threshold = (int16_t)((float)current_reading * 1.05) + 100;
+  int16_t new_threshold = (int16_t)((float)current_reading * 1.05) + 125;
 
   ADS.setComparatorThresholdHigh(new_threshold);
   ADS.setComparatorThresholdLow(new_threshold);

@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#define LOADCELL_INIT_TARE_VALUE -5230 //Zeroed with empty feeder
+#define LOADCELL_INIT_TARE_VALUE -5270 //Zeroed with empty feeder
 // calibration factor: read raw loadcell value with known weight attached
 // divide reading(g) by known weight mass(g)
 #define LOADCELL_CALIBRATION_FACTOR -109
@@ -80,6 +80,7 @@
 
 // for esp32
 #define SERIAL_BAUD_RATE 115200
+#define REBOOT_INTERVAL_HOURS 24
 
 #ifdef DEBUG
 #define DEBUG_BEGIN(x) Serial.begin(x) 
